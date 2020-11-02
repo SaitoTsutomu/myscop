@@ -1,5 +1,7 @@
 The myscop is wrapper of SCOP.
+
 SCOP is Solver for COnstraint Programing.
+
 Need scop and scop.py.
 
 https://logopt.com/scop2/
