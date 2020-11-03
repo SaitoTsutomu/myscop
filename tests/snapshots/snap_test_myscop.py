@@ -15,3 +15,9 @@ snapshots['test_binpacking 1'] = [
     '2',
     '0'
 ]
+
+snapshots['test_quadratic 1'] = [
+    '1',
+    '0',
+    '2'
+]
