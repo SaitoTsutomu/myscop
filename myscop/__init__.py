@@ -21,11 +21,7 @@ class MyExpr(metaclass=abc.ABCMeta):
     args: List[str] = []
 
     @abc.abstractmethod
-    def __add__(self, other):
-        pass
-
-    @abc.abstractmethod
-    def __sub__(self, other):
+    def __init__(self):
         pass
 
     def to_constr(self, rhs, direction):
@@ -49,6 +45,14 @@ class MyExpr(metaclass=abc.ABCMeta):
                 v2 = [coe * i for i in v2]
             setattr(expr, arg, v1 + v2)
         return expr
+
+    def __add__(self, other):
+        assert isinstance(other, type(self))
+        return self.append(1, other)
+
+    def __sub__(self, other):
+        assert isinstance(other, type(self))
+        return self.append(-1, other)
 
 
 class MyConstraint:
@@ -116,14 +120,6 @@ class MyLinear(MyExpr):
         self.var = var
         self.val = to_list(val, var)
 
-    def __add__(self, other):
-        assert isinstance(other, MyLinear)
-        return self.append(1, other)
-
-    def __sub__(self, other):
-        assert isinstance(other, MyLinear)
-        return self.append(-1, other)
-
 
 class MyQuadratic(MyExpr):
     type_ = Quadratic
@@ -136,14 +132,6 @@ class MyQuadratic(MyExpr):
         self.val1 = to_list(val1, var1)
         self.var2 = var2
         self.val2 = to_list(val2, var1)
-
-    def __add__(self, other):
-        assert isinstance(other, MyQuadratic)
-        return self.append(1, other)
-
-    def __sub__(self, other):
-        assert isinstance(other, MyQuadratic)
-        return self.append(-1, other)
 
 
 class MyAlldiff(MyConstraint):

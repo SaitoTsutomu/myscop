@@ -1,3 +1,4 @@
+import pytest
 from myscop import MyAlldiff as A
 from myscop import MyLinear as L
 from myscop import MyModel
@@ -32,3 +33,19 @@ def test_quadratic(snapshot):
     ans = [v.value for v in [x, y, z]]
     snapshot.assert_match(ans)
     print(ans)
+
+
+def test_raises():
+    m = MyModel()
+    v = m.addvars(1, [0, 1])
+    ln = L(1, v, 0)
+    qd = Q(1, v, 0, v, 1)
+    ad = A(v)
+    with pytest.raises(AssertionError):
+        m.addcons(ln)  # 「<= 0」がない
+    with pytest.raises(AssertionError):
+        ln + qd <= 0  # 異なるものを足している
+    with pytest.raises(AssertionError):
+        qd - ln <= 0  # 異なるものを引いている
+    with pytest.raises(TypeError):
+        ad <= 0  # 「<= 0」は使えない
