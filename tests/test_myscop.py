@@ -27,7 +27,7 @@ def test_quadratic(snapshot):
                 v1 == y and v2 == z and i == 0 and j == 2
             ):
                 continue
-            m.addcons(Q(1, [v1], i, [v2], j))
+            m.addcons(Q(1, [v1], i, [v2], j) <= 0)
     m.optimize()
     ans = [v.value for v in [x, y, z]]
     snapshot.assert_match(ans)
