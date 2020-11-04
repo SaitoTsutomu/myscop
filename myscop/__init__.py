@@ -1,12 +1,18 @@
+import math
 from copy import copy
-from typing import Iterable, List
+from typing import Iterable, List, Union
 
+import pandas as pd
 from more_itertools import always_iterable, repeat_last
 from scop import Alldiff, Linear, Model, Quadratic
 
+inf = math.inf
 
-def to_iter(i):
-    return i if isinstance(i, Iterable) else repeat_last(always_iterable(i))
+
+def to_iter(it, var):
+    if not isinstance(it, str) and isinstance(it, Iterable):
+        return it
+    return [i for i, _ in zip(repeat_last(always_iterable(it)), var)]
 
 
 class MyConstraint:
@@ -17,6 +23,13 @@ class MyConstraint:
 
     def constr(self, rhs, direction):
         cn = copy(self)
+        if isinstance(rhs, MyLinear):
+            assert isinstance(self, MyLinear)
+            cn.coe.extend([-i for i in rhs.coe])
+            cn.var.extend(rhs.var)
+            cn.val.extend(rhs.val)
+            rhs = 0
+        assert isinstance(rhs, int) or isinstance(rhs, float)
         cn.rhs, cn.direction = rhs, direction
         return cn
 
@@ -44,11 +57,32 @@ class MyConstraint:
 
 
 class MyModel(Model):
-    def addvars(self, num: int, dom: Iterable):
-        return [self.addVariable(f"v_{i:03}", dom) for i in range(num)]
+    def addvars(
+        self,
+        num: Union[int, pd.DataFrame],
+        domain: Iterable,
+        pre: str = "v_",
+        start: int = 0,
+        var: str = "Var",
+    ):
+        n, df = num, None
+        if isinstance(num, pd.DataFrame):
+            n, df = len(num), num
+        v = [self.addVariable(f"{pre}{i + start:03}", domain) for i in range(n)]
+        if df is not None:
+            df[var] = v
+        return v
 
     def addcons(self, constr: MyConstraint, name: str = "", weight: float = 1):
         self.addConstraint(constr.eval(name, weight))
+
+    def addvals(
+        self, dfs: Union[pd.DataFrame, list], var: str = "Var", val: str = "Val"
+    ):
+        if isinstance(dfs, pd.DataFrame):
+            dfs = [dfs]
+        for df in dfs:
+            df[val] = [v.value for v in df[var]]
 
 
 class MyLinear(MyConstraint):
@@ -56,9 +90,9 @@ class MyLinear(MyConstraint):
     args = ["coe", "var", "val"]
 
     def __init__(self, coe, var, val):
-        self.coe = to_iter(coe)  # first args of addTerms, not weight
+        self.coe = to_iter(coe, var)  # first args of addTerms, not weight
         self.var = var
-        self.val = to_iter(val)
+        self.val = to_iter(val, var)
 
 
 class MyQuadratic(MyConstraint):
@@ -66,11 +100,12 @@ class MyQuadratic(MyConstraint):
     args = ["coe", "var1", "val1", "var2", "val2"]
 
     def __init__(self, coe, var1, val1, var2, val2):
-        self.coe = to_iter(coe)  # first args of addTerms, not weight
+        assert len(var1) == len(var2)
+        self.coe = to_iter(coe, var1)  # first args of addTerms, not weight
         self.var1 = var1
-        self.val1 = to_iter(val1)
+        self.val1 = to_iter(val1, var1)
         self.var2 = var2
-        self.val2 = to_iter(val2)
+        self.val2 = to_iter(val2, var1)
 
 
 class MyAlldiff(MyConstraint):

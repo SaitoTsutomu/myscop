@@ -2,6 +2,7 @@ scop_best_data.txt
 scop_input.txt
 scop_out.txt
 scop
+scop.exe
 scop.py
 .vscode/
 .DS_Store
