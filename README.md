@@ -25,18 +25,17 @@ print(ans)  # ['2', '0', '1', '1', '2', '0']
 ## Example(alldiff & quadratic)
 
 ```
-from myscop import MyModel, MyAlldiff as A, MyQuadratic as Q
+from myscop import inf, MyModel, MyAlldiff as A, MyQuadratic as Q
 
 m = MyModel()
+m.Params.TimeLimit = 0.1
 x, y, z = m.addvars(3, range(3))
-m.addcons(A([x, y, z]))
+m.addcons(A([x, y, z]), weight=inf)
 for i, j in [(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)]:
     for v1, v2 in zip([x, x, y], [y, z, z]):
-        if (v1 == x and v2 == y and i == 1 and j == 0) or (
-            v1 == y and v2 == z and i == 0 and j == 2
-        ):
+        if v1 == x and v2 == y and i == 1 and j == 0:
             continue
-        m.addcons(Q(1, [v1], i, [v2], j))
+        m.addcons(Q(1, [v1], i, [v2], j) <= 0)
 m.optimize()
 ans = [v.value for v in [x, y, z]]
 print(ans)  # ['1', '0', '2']
