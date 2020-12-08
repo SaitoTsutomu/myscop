@@ -133,7 +133,7 @@ class MyConstraint:
             name=name, weight=weight, rhs=self.rhs, direction=self.direction
         )
         for x in self.expr:
-            cn.addTerms(*x)
+            cn.addTerms(*([i] for i in x))
         return cn
 
 
