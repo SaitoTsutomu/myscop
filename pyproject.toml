@@ -2,17 +2,17 @@
 authors = ["Saito Tsutomu <tsutomu7@hotmail.co.jp>"]
 classifiers = [
   "Development Status :: 1 - Planning",
-  "License :: OSI Approved :: Python Software Foundation License",
+  "License :: OSI Approved :: MIT License",
   "Programming Language :: Python",
   "Topic :: Software Development",
   "Topic :: Scientific/Engineering",
 ]
 description = "SCOP is Solver for COnstraint Programing."
 homepage = "https://github.com/SaitoTsutomu/myscop"
-license = "PSFL"
+license = "MIT"
 name = "myscop"
 readme = "README.md"
-version = "0.0.7"
+version = "0.0.8"
 
 [tool.poetry.dependencies]
 more-itertools = "^8.6.0"
